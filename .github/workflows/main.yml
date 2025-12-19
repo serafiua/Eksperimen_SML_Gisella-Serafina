@@ -1,0 +1,36 @@
+name: Auto Preprocessing Data
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      - name: Install dependencies
+        run: |
+          pip install pandas numpy scikit-learn joblib
+
+      - name: Run Preprocessing Script
+        run: |
+          python preprocessing/automate_Gisella-Serafina.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name ${{ secrets.username }}
+          git config --global user.email ${{ secrets.email }}
+          git add preprocessing/TelcoCustomerChurn_preprocessing.csv
+          git add preprocessing/preprocessor_pipeline.joblib
+          git add preprocessing/data_header.csv
+          git commit -m "Update preprocessed data and artifacts [skip ci]" || echo "No changes to commit"
+          git push
